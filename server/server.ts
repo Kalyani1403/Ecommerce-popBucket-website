@@ -18,7 +18,32 @@ app.use(express.json());
 
 const path = require('path');
 const fs = require('fs');
-const distPath = path.resolve(__dirname, '..', 'dist');
+
+// Resolve the frontend `dist` directory in both development (ts-node running
+// from the project `server/` folder) and production (compiled JS running
+// from `dist/server/`). We check a few candidate paths and pick the first
+// that exists.
+let distPath: string | undefined;
+
+// If the server is running from the production `dist` directory the compiled
+// server will have __dirname equal to that dist path. Detect that first.
+if (path.basename(__dirname).toLowerCase() === 'dist') {
+    distPath = __dirname;
+} else {
+    const distCandidates = [
+        path.resolve(__dirname, '..', 'dist'),       // dev: <project>/server -> <project>/dist
+        path.resolve(__dirname, '..', '..', 'dist'), // alternative layout
+        path.resolve(__dirname, '..')                // fallback
+    ];
+
+    distPath = distCandidates.find(p => {
+        try { return fs.existsSync(p); } catch (e) { return false; }
+    });
+
+    if (!distPath) {
+        distPath = undefined;
+    }
+}
 
 // Optional server-side Gemini proxy (only configured if GEMINI_API_KEY is set)
 let genaiClient: any = null;
@@ -145,10 +170,12 @@ app.get('/', (req: any, res: any) => {
 });
 
 // Serve frontend static files from the Vite build (if present)
-if (fs.existsSync(distPath)) {
+if (distPath && fs.existsSync(distPath)) {
     app.use(express.static(distPath));
     // Always return index.html for any unknown route (SPA)
-    app.get('/*', (req: any, res: any) => {
+    // Use '*' (catch-all) instead of '/*' to avoid path-to-regexp issues
+    // Use a regex-based catch-all to avoid issues with path-to-regexp parsing
+    app.get(/.*/, (req: any, res: any) => {
         res.sendFile(path.join(distPath, 'index.html'));
     });
 }

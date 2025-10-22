@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/copy-imgs.js",
-    "build": "vite build && tsc -p server/tsconfig.json",
+  "build": "vite build && tsc -p server/tsconfig.json",
     "postinstall": "node scripts/copy-imgs.js",
     "preview": "vite preview",
     "server": "npx ts-node --project server/tsconfig.json --require dotenv/config server/server.ts",
-    "start": "node server/server.js",
+  "prestart": "npm run build",
+  "start": "node dist/server.js",
     "dev:server": "nodemon --watch server --ext ts --exec \"npx ts-node --project server/tsconfig.json --require dotenv/config server/server.ts\""
   },
   "dependencies": {
