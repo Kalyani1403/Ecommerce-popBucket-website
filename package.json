@@ -2,15 +2,15 @@
   "$schema": "https://json.schemastore.org/package.json",
   "name": "popbasket",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "prebuild": "node scripts/copy-imgs.js",
-  "postinstall": "node scripts/copy-imgs.js",
-  "server": "npx ts-node --project server/tsconfig.json --require dotenv/config server/server.ts",
-  "start": "node server/server.js",
+    "dev": "vite",
+    "prebuild": "node scripts/copy-imgs.js",
+    "build": "vite build && tsc -p server/tsconfig.json",
+    "postinstall": "node scripts/copy-imgs.js",
+    "preview": "vite preview",
+    "server": "npx ts-node --project server/tsconfig.json --require dotenv/config server/server.ts",
+    "start": "node server/server.js",
     "dev:server": "nodemon --watch server --ext ts --exec \"npx ts-node --project server/tsconfig.json --require dotenv/config server/server.ts\""
   },
   "dependencies": {
@@ -32,6 +32,8 @@
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vite-plugin-static-copy": "^0.17.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
-
